@@ -16,11 +16,12 @@
 function validateEnv(required) {
     const missing = required.filter((key) => !process.env[key]);
     if (missing.length > 0) {
-        throw new Error(
-            `[Venue Sahayak] Missing required environment variables at startup:\n` +
+        console.warn(
+            `[Venue Sahayak] WARNING: Missing required environment variables:\n` +
             missing.map((k) => `  - ${k}`).join('\n') + '\n' +
             `\nSet secrets via: firebase functions:secrets:set <SECRET_NAME>` +
-            `\nSet config via:  functions/.env (copy from functions/.env.example)`
+            `\nSet config via:  functions/.env (copy from functions/.env.example)\n` +
+            `Note: If you are running 'firebase deploy', you can safely ignore this warning.`
         );
     }
 }
