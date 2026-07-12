@@ -20,15 +20,9 @@
  */
 
 import { onRequest } from "firebase-functions/v2/https";
-import { defineSecret } from "firebase-functions/params";
 import { getGeminiResponse } from "./gemini.js";
 import { updateZoneCrowdLevel } from "./firestore.js";
 import config from "./config.js";
-
-// Load Gemini API key securely from Google Cloud Secret Manager.
-// defineSecret wires the secret into process.env.GEMINI_API_KEY at runtime.
-// Never place this value in functions/.env or any committed file.
-const geminiApiKey = defineSecret("GEMINI_API_KEY");
 
 // Allowed CORS origins are loaded from ALLOWED_ORIGIN env var (comma-separated).
 // Set in functions/.env for local dev; update for production Firebase Hosting domain.
@@ -41,8 +35,7 @@ const ALLOWED_ORIGINS = config.allowedOrigins;
 const functionConfig = {
     memory: config.functionsMemory,
     timeoutSeconds: config.functionsTimeoutSeconds,
-    cors: ALLOWED_ORIGINS,
-    secrets: [geminiApiKey]
+    cors: ALLOWED_ORIGINS
 };
 
 // In-memory rate limiting map for 'chat' endpoint

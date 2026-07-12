@@ -1,11 +1,10 @@
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 
-// Initialize Firebase Admin SDK
-// This uses application default credentials. If running locally, you might need to set
-// process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
-// or use a service account key if deploying against a live project.
-initializeApp();
+// Initialize Firebase Admin SDK with explicit project ID to avoid ADC detection issues
+initializeApp({
+    projectId: process.env.FIREBASE_PROJECT_ID || process.env.GCLOUD_PROJECT || 'p2-o-fcb5d'
+});
 const db = getFirestore();
 
 const zones = [
