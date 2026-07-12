@@ -99,7 +99,7 @@ window.updateDensity = async function(zoneId, level) {
     renderTable(); // Instant reflection
 
     try {
-        const res = await fetch('/updateCrowdLevel', {
+        const res = await fetch('/api/updateCrowdLevel', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ zoneId, level, updatedBy: volunteerName })
