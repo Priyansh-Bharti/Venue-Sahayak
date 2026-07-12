@@ -1,0 +1,283 @@
+﻿<!doctype html>
+
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Venue Sahayak - Staff Admin</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              'primary-fixed': '#e2dfff',
+              'surface-tint': '#4d44e3',
+              'inverse-primary': '#c3c0ff',
+              secondary: '#515f74',
+              'tertiary-container': '#a44100',
+              'surface-container': '#eceef0',
+              'on-primary-container': '#dad7ff',
+              'surface-container-high': '#e6e8ea',
+              'surface-variant': '#e0e3e5',
+              'surface-container-low': '#f2f4f6',
+              'secondary-container': '#d5e3fc',
+              background: '#f7f9fb',
+              outline: '#777587',
+              'on-tertiary-container': '#ffd2be',
+              'on-background': '#191c1e',
+              surface: '#f7f9fb',
+              'surface-container-lowest': '#ffffff',
+              'on-primary': '#ffffff',
+              'inverse-surface': '#2d3133',
+              'on-secondary-fixed': '#0d1c2e',
+              'inverse-on-surface': '#eff1f3',
+              'on-tertiary-fixed-variant': '#7b2f00',
+              'on-primary-fixed': '#0f0069',
+              'surface-container-highest': '#e0e3e5',
+              'on-surface': '#191c1e',
+              'on-tertiary': '#ffffff',
+              'surface-dim': '#d8dadc',
+              'error-container': '#ffdad6',
+              'on-primary-fixed-variant': '#3323cc',
+              'secondary-fixed': '#d5e3fc',
+              'on-secondary-fixed-variant': '#3a485b',
+              primary: '#3525cd',
+              'tertiary-fixed': '#ffdbcc',
+              'on-secondary-container': '#57657a',
+              'on-error-container': '#93000a',
+              'primary-fixed-dim': '#c3c0ff',
+              'primary-container': '#4f46e5',
+              'on-secondary': '#ffffff',
+              'surface-bright': '#f7f9fb',
+              tertiary: '#7e3000',
+              'on-tertiary-fixed': '#351000',
+              'on-error': '#ffffff',
+              'secondary-fixed-dim': '#b9c7df',
+              'tertiary-fixed-dim': '#ffb695',
+              'outline-variant': '#c7c4d8',
+              error: '#ba1a1a',
+              'on-surface-variant': '#464555',
+            },
+            borderRadius: {
+              DEFAULT: '0.25rem',
+              lg: '0.5rem',
+              xl: '0.75rem',
+              full: '9999px',
+            },
+            spacing: {
+              gutter: '16px',
+              sm: '8px',
+              'margin-desktop': '32px',
+              'tap-target-min': '44px',
+              xl: '32px',
+              'margin-mobile': '16px',
+              lg: '24px',
+              xs: '4px',
+              unit: '4px',
+              md: '16px',
+            },
+            fontFamily: {
+              'headline-lg': ['Inter'],
+              'title-lg': ['Inter'],
+              'body-md': ['Inter'],
+              'label-lg': ['Inter'],
+              'label-md': ['Inter'],
+              'body-lg': ['Inter'],
+            },
+            fontSize: {
+              'headline-lg': ['32px', { lineHeight: '40px', fontWeight: '600' }],
+              'title-lg': ['22px', { lineHeight: '28px', fontWeight: '500' }],
+              'body-md': ['16px', { lineHeight: '24px', fontWeight: '400' }],
+              'label-lg': [
+                '14px',
+                { lineHeight: '20px', letterSpacing: '0.1px', fontWeight: '500' },
+              ],
+              'label-md': [
+                '12px',
+                { lineHeight: '16px', letterSpacing: '0.5px', fontWeight: '500' },
+              ],
+              'body-lg': ['18px', { lineHeight: '28px', fontWeight: '400' }],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24;
+      }
+      .state-layer:hover {
+        background-color: rgba(77, 68, 227, 0.08);
+      }
+      .segmented-control-active {
+        background-color: #4f46e5;
+        color: white;
+      }
+    </style>
+  </head>
+  <body class="bg-background text-on-background font-body-md min-h-screen pb-24 md:pb-0">
+    <!-- TopAppBar (From Shared Components) -->
+    <header
+      class="bg-surface dark:bg-on-background border-b border-outline-variant dark:border-outline docked full-width top-0 z-50 sticky"
+    >
+      <div
+        class="flex justify-between items-center px-4 md:px-margin-desktop h-16 w-full max-w-7xl mx-auto"
+      >
+        <div class="flex items-center gap-4">
+          <span
+            class="font-headline-lg text-headline-lg font-bold text-primary dark:text-inverse-primary"
+            >Venue Sahayak</span
+          >
+          <span
+            class="hidden md:inline-flex bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-label-md text-label-md uppercase tracking-wider"
+            >Staff Admin</span
+          >
+        </div>
+        <nav aria-label="Desktop navigation" class="hidden md:flex items-center gap-8 h-full">
+          <a
+            class="flex items-center h-full text-on-surface-variant dark:text-surface-variant hover:bg-surface-variant/50 dark:hover:bg-inverse-surface/50 transition-colors px-2"
+            href="#"
+          >
+            <span class="font-label-lg text-label-lg">Fan Assistant</span>
+          </a>
+          <a
+            class="flex items-center h-full text-primary dark:text-inverse-primary font-bold border-b-2 border-primary px-2"
+            href="#"
+          >
+            <span class="font-label-lg text-label-lg">Staff Admin</span>
+          </a>
+        </nav>
+        <div class="flex items-center gap-2">
+          <button
+            class="p-2 rounded-full hover:bg-surface-variant/50 dark:hover:bg-inverse-surface/50 transition-colors active:scale-95 transition-transform"
+            aria-label="Change Language"
+          >
+            <span class="material-symbols-outlined text-on-surface-variant">translate</span>
+          </button>
+          <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-outline-variant">
+            <img
+              class="w-full h-full object-cover"
+              alt="A professional headshot of a diverse staff member wearing a clean venue volunteer uniform. The background is a soft-focus indoor venue setting with warm, ambient lighting. The style is modern corporate photography with high-end clarity and natural color tones consistent with a reliable service brand."
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbxdMkmHbgkrlIVPjXR2-xESkrCMUyy16cajnlB-Iq-oSP0oxZWQfubfrEStNgHPGfrYDnaBJRs50yzA9yVeEYuJrKumz_SxdP-5iuFXklrMed1BBE2_mKJE3o2flLiZLmBSZHT0jDw_vsUEx1c5MAq927waN60CA6sKyrQeWVEDaMnXsTDKc56CwYDXTCHLTK58j6U00q19ORxZqgtfsoqYKB2Sq0efNgMJvW9a9C6u2IxHrXk-VN_zNRXusi2m5eYHXGyw0H1u-g"
+            />
+          </div>
+        </div>
+      </div>
+    </header>
+    <!-- Main Content Canvas -->
+    <main class="max-w-7xl mx-auto px-4 md:px-margin-desktop py-8">
+      <div class="mb-8">
+        <h1 class="font-headline-lg text-headline-lg text-on-surface mb-2">
+          Venue Zone Management
+        </h1>
+        <p class="font-body-md text-on-surface-variant max-w-2xl">
+          Monitor and update crowd density levels across key venue locations in real-time. Your
+          updates directly inform the Fan Assistant AI.
+        </p>
+      </div>
+      <!-- Dashboard Bento-ish Grid (Main Table Container) -->
+      <div
+        class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden"
+      >
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse">
+            <thead>
+              <tr class="bg-surface-container-low border-b border-outline-variant">
+                <th
+                  class="px-6 py-4 text-left font-label-md text-label-md uppercase tracking-[0.5px] text-on-surface-variant"
+                >
+                  Zone Name
+                </th>
+                <th
+                  class="px-6 py-4 text-left font-label-md text-label-md uppercase tracking-[0.5px] text-on-surface-variant"
+                >
+                  Crowd Density Status
+                </th>
+                <th
+                  class="px-6 py-4 text-left font-label-md text-label-md uppercase tracking-[0.5px] text-on-surface-variant"
+                >
+                  Last Updated
+                </th>
+              </tr>
+            </thead>
+            <tbody id="zones-tbody" class="divide-y divide-outline-variant">
+              <!-- Rows dynamically generated by admin.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- System Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+        <div class="bg-secondary-container p-6 rounded-xl">
+          <div class="flex justify-between items-start mb-4">
+            <span class="material-symbols-outlined text-on-secondary-container text-[32px]"
+              >groups</span
+            >
+            <span class="font-label-md text-label-md bg-white/30 px-2 py-0.5 rounded">Live</span>
+          </div>
+          <h2 class="font-headline-lg text-headline-lg text-on-secondary-container">12,450</h2>
+          <p class="font-body-md text-on-secondary-container opacity-80">Total Venue Visitors</p>
+        </div>
+        <div class="bg-primary-fixed p-6 rounded-xl">
+          <div class="flex justify-between items-start mb-4">
+            <span class="material-symbols-outlined text-primary text-[32px]">bolt</span>
+            <span class="font-label-md text-label-md bg-white/30 px-2 py-0.5 rounded"
+              >AI Active</span
+            >
+          </div>
+          <h2 class="font-headline-lg text-headline-lg text-on-primary-fixed">1,242</h2>
+          <p class="font-body-md text-on-primary-fixed opacity-80">Active AI Conversations</p>
+        </div>
+        <div class="bg-surface-container-high p-6 rounded-xl border border-outline-variant">
+          <div class="flex justify-between items-start mb-4">
+            <span class="material-symbols-outlined text-on-surface-variant text-[32px]"
+              >shield_person</span
+            >
+          </div>
+          <h2 class="font-headline-lg text-headline-lg text-on-surface">42</h2>
+          <p class="font-body-md text-on-surface-variant">Active Staff Online</p>
+        </div>
+      </div>
+    </main>
+    <!-- BottomNavBar (Mobile Only) -->
+    <nav
+      class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 pb-safe px-4 bg-surface-container dark:bg-inverse-surface shadow-lg rounded-t-xl"
+    >
+      <a
+        class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-6 py-1 active:scale-90 transition-all duration-150"
+        href="#"
+      >
+        <span class="material-symbols-outlined mb-1">chat_bubble</span>
+        <span class="font-label-md text-label-md">Fan Assistant</span>
+      </a>
+      <a
+        class="flex flex-col items-center justify-center bg-primary-container dark:bg-primary text-on-primary-container dark:text-on-primary rounded-full px-6 py-1 active:scale-90 transition-all duration-150"
+        href="#"
+      >
+        <span class="material-symbols-outlined mb-1">admin_panel_settings</span>
+        <span class="font-label-md text-label-md">Staff Admin</span>
+      </a>
+    </nav>
+    <!-- Admin Logic -->
+    <script src="js/env-config.js"></script>
+    <script src="js/admin.js"></script>
+  </body>
+</html>

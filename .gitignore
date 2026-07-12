@@ -1,0 +1,22 @@
+node_modules/
+
+# Real environment variable files — never commit these
+.env
+functions/.env
+functions/.env.local
+
+# Generated at build time by scripts/inject-env.js — never commit
+public/js/env-config.js
+
+# Firebase local artefacts
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+
+# OS / editor
+*.local
+.DS_Store
+
+# Generated test output
+jest-results.json
+coverage/

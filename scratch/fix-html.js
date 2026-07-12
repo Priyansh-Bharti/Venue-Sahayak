@@ -1,0 +1,13 @@
+const fs = require('fs');
+let indexHtml = fs.readFileSync('public/index.html', 'utf8');
+indexHtml = indexHtml.replace(/data-alt=/g, 'alt=');
+indexHtml = indexHtml.replace(/<nav class=\"hidden md:flex/g, '<nav aria-label=\"Desktop navigation\" class=\"hidden md:flex');
+indexHtml = indexHtml.replace(/<aside class=\"hidden lg:flex/g, '<aside aria-label=\"Sidebar navigation\" class=\"hidden lg:flex');
+fs.writeFileSync('public/index.html', indexHtml);
+let adminHtml = fs.readFileSync('public/admin.html', 'utf8');
+adminHtml = adminHtml.replace(/data-alt=/g, 'alt=');
+adminHtml = adminHtml.replace(/<nav class=\"hidden md:flex/g, '<nav aria-label=\"Desktop navigation\" class=\"hidden md:flex');
+adminHtml = adminHtml.replace(/<h3 class=\"font-headline-lg/g, '<h2 class=\"font-headline-lg');
+adminHtml = adminHtml.replace(/<\/h3>/g, '</h2>');
+fs.writeFileSync('public/admin.html', adminHtml);
+console.log('Fixed HTML files');

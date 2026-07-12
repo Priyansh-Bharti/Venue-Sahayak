@@ -1,0 +1,58 @@
+{
+  "name": "venue-sahayak",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "node scripts/inject-env.js",
+    "env:check": "node scripts/env-check.js",
+    "predeploy": "npm run env:check && npm run build",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/unit",
+    "test:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration",
+    "test:security": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/security",
+    "test:a11y": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/accessibility",
+    "test:frontend": "node --experimental-vm-modules node_modules/jest/bin/jest.js tests/frontend",
+    "test:emulators": "firebase emulators:exec \"npm run test:coverage\"",
+    "seed": "node scripts/seed.js",
+    "prepare": "husky"
+  },
+  "jest": {
+    "transform": {},
+    "testEnvironment": "node",
+    "setupFiles": [
+      "./jest.setup.js"
+    ],
+    "moduleDirectories": [
+      "node_modules",
+      "functions/node_modules"
+    ]
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.1",
+    "@google/generative-ai": "^0.24.1",
+    "cross-env": "^10.1.0",
+    "eslint": "10.7.0",
+    "eslint-config-google": "0.14.0",
+    "eslint-config-prettier": "10.1.8",
+    "firebase": "^12.16.0",
+    "firebase-admin": "^14.1.0",
+    "firebase-functions": "^7.2.5",
+    "firebase-functions-test": "^3.5.0",
+    "husky": "9.1.7",
+    "jest": "^29.7.0",
+    "jest-axe": "^10.0.0",
+    "jest-environment-jsdom": "^30.4.1",
+    "lint-staged": "17.0.8",
+    "node-fetch": "^3.3.2",
+    "prettier": "3.9.5"
+  }
+}

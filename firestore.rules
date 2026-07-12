@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /zones/{zoneId} {
+      // Fans need public read access to zones, no auth required for read-only browsing
+      allow read: if true;
+
+      // Do not allow open writes from the client.
+      // All writes should go through the admin.html form which calls a Cloud Function.
+      // We lock client-side writes to false entirely to enforce this architecture.
+      //
+      // NOTE: Defense in depth validation for schema & authorization.
+      // If client-side writes were to be enabled, they MUST enforce:
+      // 1. Valid volunteer session token/custom claim: request.auth.token.volunteer == true
+      // 2. Validate crowd_level enum: request.resource.data.crowd_level in ['low', 'medium', 'high']
+      // 
+      // The condition below evaluates to false to lock the client but demonstrates the validation requirements.
+      allow write: if false 
+                   && request.auth != null 
+                   && request.auth.token.volunteer == true
+                   && request.resource.data.crowd_level in ['low', 'medium', 'high'];
+    }
+
+    // Deny all access to any other collection by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
