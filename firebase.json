@@ -5,16 +5,6 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
-    ],
-    "rewrites": [
-      {
-        "source": "/api/chat",
-        "destination": "https://venue-sahayak-r64q4s4zu-uzumakinarutoxs-projects.vercel.app/api/chat"
-      },
-      {
-        "source": "/api/updateCrowdLevel",
-        "destination": "https://venue-sahayak-r64q4s4zu-uzumakinarutoxs-projects.vercel.app/api/updateCrowdLevel"
-      }
     ]
   },
   "firestore": {

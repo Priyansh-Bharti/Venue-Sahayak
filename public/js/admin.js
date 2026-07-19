@@ -99,12 +99,19 @@ window.updateDensity = async function(zoneId, level) {
     renderTable(); // Instant reflection
 
     try {
-        const res = await fetch('/api/updateCrowdLevel', {
-            method: 'POST',
+        const docPath = `projects/p2-o-fcb5d/databases/(default)/documents/zones/${zoneId}`;
+        const url = `https://firestore.googleapis.com/v1/${docPath}?updateMask.fieldPaths=crowd_level&updateMask.fieldPaths=updated_by&updateMask.fieldPaths=updated_at`;
+        const res = await fetch(url, {
+            method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ zoneId, level, updatedBy: volunteerName })
+            body: JSON.stringify({
+                fields: {
+                    crowd_level: { stringValue: level },
+                    updated_by: { stringValue: volunteerName },
+                    updated_at: { timestampValue: new Date().toISOString() }
+                }
+            })
         });
-        
         if (!res.ok) throw new Error('Update failed on server');
     } catch (e) {
         // Rollback

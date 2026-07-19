@@ -28,37 +28,84 @@ function setupEventListeners() {
     });
 }
 
+// --- Gemini API Config (injected at build time by scripts/inject-env.js) ---
+const GEMINI_API_KEY = window.__ENV__?.GEMINI_API_KEY || '';
+const GEMINI_MODEL = window.__ENV__?.GEMINI_MODEL || 'gemini-2.0-flash';
+const FIRESTORE_PROJECT = 'p2-o-fcb5d';
+
 /**
- * Handles message submission (debounced via state lock).
+ * Fetches all zones from Firestore REST API for context.
+ */
+async function fetchZones() {
+    try {
+        const res = await fetch(`https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT}/databases/(default)/documents/zones`);
+        if (!res.ok) return [];
+        const data = await res.json();
+        return (data.documents || []).map(doc => ({
+            name: doc.fields?.name?.stringValue || 'Unknown',
+            type: doc.fields?.type?.stringValue || '',
+            crowd_level: doc.fields?.crowd_level?.stringValue || 'low',
+            description: doc.fields?.description?.stringValue || ''
+        }));
+    } catch { return []; }
+}
+
+/**
+ * Handles message submission — calls Gemini API directly from browser.
  */
 async function handleSend() {
     const text = inputField.value.trim();
     if (!text || isProcessing) return;
+
+    if (!GEMINI_API_KEY) {
+        appendAssistantMessage('Chat is not configured. API key missing.');
+        return;
+    }
 
     lockInputState();
     appendUserMessage(text);
     const indicatorId = appendTypingIndicator();
 
     try {
-        const response = await fetch('/api/chat', {
+        // Fetch live zone data for context
+        const zones = await fetchZones();
+        const zoneContext = zones.length
+            ? zones.map(z => `- ${z.name} (${z.type}): crowd level is ${z.crowd_level}. ${z.description}`).join('\n')
+            : 'No zone data available currently.';
+
+        const systemPrompt = `You are Venue Sahayak, a helpful AI assistant for stadium and venue events in India. 
+You help attendees navigate the venue, check crowd levels, find facilities, and plan their experience.
+Answer concisely and helpfully. If asked about a specific zone or gate, mention its crowd level.
+Current live venue zone data:\n${zoneContext}`;
+
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: text })
+            body: JSON.stringify({
+                system_instruction: { parts: [{ text: systemPrompt }] },
+                contents: [{ role: 'user', parts: [{ text }] }]
+            })
         });
-        
-        if (!response.ok) throw new Error('API Request Failed');
-        
+
+        if (!response.ok) throw new Error(`Gemini error ${response.status}`);
+
         const data = await response.json();
+        const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I could not process that.';
+
         removeElement(indicatorId);
-        appendAssistantMessage(data.reply);
-        updateLanguage(data.reply);
-        
-        if (data.zone && typeof window.renderZoneOnMap === 'function') {
-            window.renderZoneOnMap(data.zone);
+        appendAssistantMessage(reply);
+        updateLanguage(reply);
+
+        // Try to highlight a mentioned zone on the map
+        const mentionedZone = zones.find(z => reply.toLowerCase().includes(z.name.toLowerCase()));
+        if (mentionedZone && typeof window.renderZoneOnMap === 'function') {
+            window.renderZoneOnMap(mentionedZone);
         }
     } catch (error) {
         removeElement(indicatorId);
-        appendAssistantMessage("Something went wrong, please try again.");
+        appendAssistantMessage('Something went wrong, please try again.');
     } finally {
         unlockInputState();
     }
