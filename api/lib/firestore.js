@@ -1,100 +1,109 @@
-import { getFirestore, FieldValue } from 'firebase-admin/firestore';
-import { initializeApp, getApps } from 'firebase-admin/app';
+/**
+ * api/lib/firestore.js
+ *
+ * Firestore access via the REST API — no firebase-admin SDK needed.
+ * This works on any serverless platform (Vercel, Netlify, etc.) without
+ * Application Default Credentials.
+ *
+ * Authentication: Firestore Security Rules are used to control access.
+ * Reads are public; writes are restricted to valid crowd level values via rules.
+ */
 
-// Ensure Firebase Admin is initialized
-if (!getApps().length) {
-    initializeApp();
-}
+const PROJECT_ID = process.env.FIREBASE_PROJECT_ID || 'p2-o-fcb5d';
+const BASE_URL = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`;
 
-let db = getFirestore();
-
-// Exported for testing purposes only
-export function _setDbForTesting(mockDb) {
-    db = mockDb;
+/**
+ * Converts a Firestore REST API document to a plain JS object.
+ */
+function fromFirestoreDoc(doc) {
+    const id = doc.name.split('/').pop();
+    const data = {};
+    for (const [key, val] of Object.entries(doc.fields || {})) {
+        // Extract the typed value from Firestore's field format
+        if ('stringValue' in val) data[key] = val.stringValue;
+        else if ('integerValue' in val) data[key] = parseInt(val.integerValue, 10);
+        else if ('doubleValue' in val) data[key] = val.doubleValue;
+        else if ('booleanValue' in val) data[key] = val.booleanValue;
+        else if ('timestampValue' in val) data[key] = val.timestampValue;
+        else if ('nullValue' in val) data[key] = null;
+        else data[key] = val;
+    }
+    return { id, ...data };
 }
 
 /**
  * Retrieves all zones from Firestore.
- * 
- * @returns {Promise<Array<Object>>} A promise that resolves to an array of zone objects.
- * @throws {Error} Throws an error if the database query fails.
  */
 export async function getAllZones() {
-    try {
-        const snapshot = await db.collection('zones').get();
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    } catch (error) {
-        console.error('Error in getAllZones:', error);
-        throw new Error(`Failed to retrieve all zones: ${error.message}`);
+    const res = await fetch(`${BASE_URL}/zones`);
+    if (!res.ok) {
+        throw new Error(`Firestore getAllZones failed: ${res.status} ${res.statusText}`);
     }
+    const json = await res.json();
+    if (!json.documents) return [];
+    return json.documents.map(fromFirestoreDoc);
 }
 
 /**
- * Retrieves a zone by its name using a case-insensitive fuzzy match.
- * Fetches all zones and filters in memory since the collection is minimal.
- * 
- * @param {string} name - The name of the zone to search for.
- * @returns {Promise<Object|null>} A promise that resolves to the matched zone object, or null if not found.
- * @throws {Error} Throws an error if the retrieval or matching process fails.
+ * Retrieves a zone by its name using case-insensitive matching.
  */
 export async function getZoneByName(name) {
     if (!name || typeof name !== 'string') {
         throw new Error('Invalid zone name provided.');
     }
-    try {
-        // Fetch all zones to perform case-insensitive and slightly fuzzy matching
-        const snapshot = await db.collection('zones').get();
-        const zones = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        
-        const searchName = name.toLowerCase().trim();
-        
-        // Exact case-insensitive match first
-        let matchedZone = zones.find(z => typeof z.name === 'string' && z.name.toLowerCase().trim() === searchName);
-        
-        if (!matchedZone) {
-            // Basic fuzzy match (e.g., if searchName is a substring of zone name)
-            matchedZone = zones.find(z => 
-                typeof z.name === 'string' && z.name.trim() !== '' && (z.name.toLowerCase().includes(searchName) || searchName.includes(z.name.toLowerCase()))
-            );
-        }
-        
-        return matchedZone || null;
-    } catch (error) {
-        console.error(`Error in getZoneByName for name "${name}":`, error);
-        throw new Error(`Failed to retrieve zone by name: ${error.message}`);
+    const zones = await getAllZones();
+    const searchName = name.toLowerCase().trim();
+
+    // Exact match first
+    let match = zones.find(z => typeof z.name === 'string' && z.name.toLowerCase().trim() === searchName);
+    // Fuzzy substring match
+    if (!match) {
+        match = zones.find(z =>
+            typeof z.name === 'string' &&
+            z.name.trim() !== '' &&
+            (z.name.toLowerCase().includes(searchName) || searchName.includes(z.name.toLowerCase()))
+        );
     }
+    return match || null;
 }
 
 /**
- * Updates the crowd level for a specific zone.
- * 
- * @param {string} zoneId - The unique ID of the zone to update.
- * @param {string} level - The new crowd level ('low', 'medium', or 'high').
- * @param {string} updatedBy - The volunteer name or ID making the update.
- * @returns {Promise<void>} A promise that resolves when the update is complete.
- * @throws {TypeError} Throws a TypeError if the level is not one of the allowed enum values.
- * @throws {Error} Throws an error if the database update fails or if required arguments are missing.
+ * Updates the crowd level for a specific zone using Firestore REST PATCH.
  */
 export async function updateZoneCrowdLevel(zoneId, level, updatedBy) {
     const allowedLevels = ['low', 'medium', 'high'];
-    
     if (!allowedLevels.includes(level)) {
         throw new TypeError(`Invalid crowd level: "${level}". Must be one of: ${allowedLevels.join(', ')}`);
     }
-    
     if (!zoneId || !updatedBy) {
         throw new Error('zoneId and updatedBy are required to update crowd level.');
     }
 
-    try {
-        const zoneRef = db.collection('zones').doc(zoneId);
-        await zoneRef.update({
-            crowd_level: level,
-            updated_by: updatedBy,
-            updated_at: FieldValue.serverTimestamp()
-        });
-    } catch (error) {
-        console.error(`Error in updateZoneCrowdLevel for zoneId "${zoneId}":`, error);
-        throw new Error(`Failed to update zone crowd level: ${error.message}`);
+    const docPath = `${BASE_URL}/zones/${zoneId}`;
+    const updateMask = 'updateMask.fieldPaths=crowd_level&updateMask.fieldPaths=updated_by&updateMask.fieldPaths=updated_at';
+    const url = `${docPath}?${updateMask}`;
+
+    const body = {
+        fields: {
+            crowd_level: { stringValue: level },
+            updated_by: { stringValue: updatedBy },
+            updated_at: { timestampValue: new Date().toISOString() }
+        }
+    };
+
+    const res = await fetch(url, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    });
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Firestore update failed: ${res.status} ${text}`);
     }
+}
+
+// Keep testing hook compatible
+export function _setDbForTesting() {
+    // No-op on REST implementation; tests mock fetch instead
 }

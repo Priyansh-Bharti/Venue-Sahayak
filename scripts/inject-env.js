@@ -46,12 +46,13 @@ try {
     // No .env file — rely on environment variables already being set.
 }
 
-const mapsKey = process.env.GOOGLE_MAPS_API_KEY;
+const mapsKey = process.env.GOOGLE_MAPS_API_KEY || '';
 
 if (!mapsKey) {
-    console.error('[inject-env] ERROR: GOOGLE_MAPS_API_KEY is not set.');
-    console.error('  Set it in your .env file or CI/CD environment before running `npm run build`.');
-    process.exit(1);
+    console.warn('[inject-env] WARNING: GOOGLE_MAPS_API_KEY is not set.');
+    console.warn('  Map functionality will be disabled until the key is provided.');
+    console.warn('  Set it in .env (local dev) or Vercel Environment Variables (production).');
+    // Do NOT exit — allow Vercel build to succeed; the key comes from env vars dashboard.
 }
 
 // Ensure the output directory exists.

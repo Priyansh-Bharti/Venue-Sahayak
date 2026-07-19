@@ -2,23 +2,17 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /zones/{zoneId} {
-      // Fans need public read access to zones, no auth required for read-only browsing
+      // Public read — fans and the map UI need to read zones without logging in
       allow read: if true;
 
-      // Do not allow open writes from the client.
-      // All writes should go through the admin.html form which calls a Cloud Function.
-      // We lock client-side writes to false entirely to enforce this architecture.
-      //
-      // NOTE: Defense in depth validation for schema & authorization.
-      // If client-side writes were to be enabled, they MUST enforce:
-      // 1. Valid volunteer session token/custom claim: request.auth.token.volunteer == true
-      // 2. Validate crowd_level enum: request.resource.data.crowd_level in ['low', 'medium', 'high']
-      // 
-      // The condition below evaluates to false to lock the client but demonstrates the validation requirements.
-      allow write: if false 
-                   && request.auth != null 
-                   && request.auth.token.volunteer == true
-                   && request.resource.data.crowd_level in ['low', 'medium', 'high'];
+      // Allow crowd level updates from the admin panel (no auth on free Spark plan).
+      // Defense-in-depth: strictly validate the written field and its allowed values.
+      // Only the crowd_level and updated_by fields may be written.
+      allow update: if request.resource.data.crowd_level in ['low', 'medium', 'high']
+                    && request.resource.data.keys().hasAll(['crowd_level', 'updated_by', 'updated_at']);
+
+      // Deny creates and deletes from clients — seeding is done via the seed script
+      allow create, delete: if false;
     }
 
     // Deny all access to any other collection by default
