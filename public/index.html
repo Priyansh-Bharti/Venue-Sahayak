@@ -303,25 +303,28 @@
 </nav>
 <!-- Micro-interactions Script -->
 <script>
-        // Auto-scroll chat to bottom
-        const chatThread = document.getElementById('chat-thread');
-        const scrollToBottom = () => {
-            chatThread.scrollTop = chatThread.scrollHeight;
-        };
-        window.onload = scrollToBottom;
-
+    (function() {
         // Simple button click ripple effect or scale
         document.querySelectorAll('button').forEach(btn => {
-            btn.addEventListener('click', function(e) {
+            btn.addEventListener('click', function() {
                 this.classList.add('scale-95');
                 setTimeout(() => this.classList.remove('scale-95'), 100);
             });
         });
 
-        // Toggle map visibility on mobile (conceptual)
-        // Since the requirement is desktop focus, we maintain the desktop layout primarily
-    </script>
-    <script src="js/env-config.js?v=3"></script><script src="js/map.js?v=3"></script>
-    <script src="js/chat.js?v=3"></script>
+        // Wire suggestion chips to fill input and send
+        document.querySelectorAll('[data-chip]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const input = document.querySelector('input[type="text"]');
+                if (input) {
+                    input.value = this.textContent.trim();
+                    input.dispatchEvent(new KeyboardEvent('keypress', { key: 'Enter', bubbles: true }));
+                }
+            });
+        });
+    })();
+</script>
+<script src="js/env-config.js?v=4"></script><script src="js/map.js?v=4"></script>
+<script src="js/chat.js?v=4"></script>
 </body></html>
 
